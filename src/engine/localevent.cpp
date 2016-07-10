@@ -29,8 +29,7 @@
 #define TAP_DELAY_EMULATE 1050
 
 LocalEvent::LocalEvent() : modes(0), key_value(KEY_NONE), mouse_state(0),
-    mouse_button(0), mouse_st(0, 0), redraw_cursor_func(NULL), keyboard_filter_func(NULL),
-    clock_delay(TAP_DELAY_EMULATE), loop_delay(1)
+    mouse_button(0), mouse_st(0, 0), clock_delay(TAP_DELAY_EMULATE)
 {
 #ifdef WITHOUT_MOUSE
     emulate_mouse = false;
@@ -299,75 +298,75 @@ bool LocalEvent::HandleEvents(bool delay)
 
     while(SDL_PollEvent(&event))
     {
-	switch(event.type)
-	{
+        switch(event.type)
+        {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-            case SDL_WINDOWEVENT:
-                if(Mixer::isValid())
+        case SDL_WINDOWEVENT:
+            if(Mixer::isValid())
+            {
+                if(event.window.event == SDL_WINDOWEVENT_HIDDEN)
                 {
-                    if(event.window.event == SDL_WINDOWEVENT_HIDDEN)
-                    {
-                        Mixer::Pause();
-                        Music::Pause();
-                        loop_delay = 100;
-                    }
-                    else
+                    Mixer::Pause();
+                    Music::Pause();
+                    loop_delay = 100;
+                }
+                else
                     if(event.window.event == SDL_WINDOWEVENT_SHOWN)
                     {
                         Mixer::Resume();
                         Music::Resume();
                         loop_delay = 1;
                     }
-                }
-                break;
+            }
+            break;
 #else
-	    case SDL_ACTIVEEVENT:
-		if(event.active.state & SDL_APPACTIVE)
-		{
-		    if(Mixer::isValid())
-		    {
-			//iconify
-			if(0 == event.active.gain)
-			{
-			    Mixer::Pause();
-			    Music::Pause();
-			    loop_delay = 100;
-			}
-			else
-			{
-			    Mixer::Resume();
-			    Music::Resume();
-			    loop_delay = 1;
-			}
-		    }
-		}
-		break;
+        case SDL_ACTIVEEVENT:
+            if(event.active.state & SDL_APPACTIVE)
+            {
+                if(Mixer::isValid())
+                {
+                    //iconify
+                    if(0 == event.active.gain)
+                    {
+                        Mixer::Pause();
+                        Music::Pause();
+                        loop_delay = 100;
+                    }
+                    else
+                    {
+                        Mixer::Resume();
+                        Music::Resume();
+                        loop_delay = 1;
+                    }
+                }
+            }
+            break;
 #endif
-	    // keyboard
-	    case SDL_KEYDOWN:
-	    case SDL_KEYUP:
-                HandleKeyboardEvent(event.key);
-	    	break;
+            // keyboard
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            HandleKeyboardEvent(event.key);
+            break;
 
-	    // mouse motion
-	    case SDL_MOUSEMOTION:
-		HandleMouseMotionEvent(event.motion);
-		break;
+            // mouse motion
+        case SDL_MOUSEMOTION:
+            HandleMouseMotionEvent(event.motion);
+            break;
 
-	    // mouse button
-	    case SDL_MOUSEBUTTONDOWN:
-	    case SDL_MOUSEBUTTONUP:
-		HandleMouseButtonEvent(event.button);
-		break;
-	
-	    // exit
-	    case SDL_QUIT:
-		Error::Except(__FUNCTION__, "SDL_QUIT");
-		return false;
+            // mouse button
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            HandleMouseButtonEvent(event.button);
+            break;
 
-	    default:
-		break;
-	}
+            // exit
+        case SDL_QUIT:
+            Error::Except(__FUNCTION__, "SDL_QUIT");
+            return false;
+
+        default:
+            break;
+        }
 
         // need for wheel up/down delay
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -380,15 +379,15 @@ bool LocalEvent::HandleEvents(bool delay)
     // emulate press right
     if((modes & TAP_MODE) && (modes & CLOCK_ON))
     {
-	clock.Stop();
-	if(clock_delay < clock.Get())
-	{
-	    ResetModes(CLICK_LEFT);
-	    ResetModes(CLOCK_ON);
-	    mouse_pr = mouse_cu;
-	    SetModes(MOUSE_PRESSED);
-	    mouse_button = SDL_BUTTON_RIGHT;
-	}
+        clock.Stop();
+        if(clock_delay < clock.Get())
+        {
+            ResetModes(CLICK_LEFT);
+            ResetModes(CLOCK_ON);
+            mouse_pr = mouse_cu;
+            SetModes(MOUSE_PRESSED);
+            mouse_button = SDL_BUTTON_RIGHT;
+        }
     }
 
     if(delay) SDL_Delay(loop_delay);

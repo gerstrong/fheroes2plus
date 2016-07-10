@@ -317,38 +317,79 @@ int Game::NewGame(void)
     buttonSettings.Draw();
 
     if(conf.QVGA())
-	buttonBattleGame.SetDisable(true);
+        buttonBattleGame.SetDisable(true);
     else
-	buttonBattleGame.Draw();
+        buttonBattleGame.Draw();
 
     cursor.Show();
     display.Flip();
 
+
+    float acc = 0.0f;
+    float start = 0.0f;
+    float elapsed = 0.0f;
+    float total_elapsed = 0.0f;
+    float curr = 0.0f;
+
+    bool loop = true;
+
     // newgame loop
-    while(le.HandleEvents())
+    while(loop)
     {
-	le.MousePressLeft(buttonStandartGame) ? buttonStandartGame.PressDraw() : buttonStandartGame.ReleaseDraw();
-	le.MousePressLeft(buttonCampainGame) ? buttonCampainGame.PressDraw() : buttonCampainGame.ReleaseDraw();
-	le.MousePressLeft(buttonMultiGame) ? buttonMultiGame.PressDraw() : buttonMultiGame.ReleaseDraw();
-	le.MousePressLeft(buttonCancelGame) ? buttonCancelGame.PressDraw() : buttonCancelGame.ReleaseDraw();
-	le.MousePressLeft(buttonSettings) ? buttonSettings.PressDraw() : buttonSettings.ReleaseDraw();
-	buttonBattleGame.isEnable() && le.MousePressLeft(buttonBattleGame) ? buttonBattleGame.PressDraw() : buttonBattleGame.ReleaseDraw();
+        const float logicLatency = 1000.0f/60.0f;
 
-	if(HotKeyPressEvent(EVENT_BUTTON_STANDARD) || le.MouseClickLeft(buttonStandartGame)) return NEWSTANDARD;
-	if(HotKeyPressEvent(EVENT_BUTTON_CAMPAIN) || le.MouseClickLeft(buttonCampainGame)) return NEWCAMPAIN;
-	if(HotKeyPressEvent(EVENT_BUTTON_MULTI) || le.MouseClickLeft(buttonMultiGame)) return NEWMULTI;
-	if(HotKeyPressEvent(EVENT_BUTTON_SETTINGS) || le.MouseClickLeft(buttonSettings)){ Dialog::ExtSettings(false); cursor.Show(); display.Flip(); }
-	if(HotKeyPressEvent(EVENT_DEFAULT_EXIT) || le.MouseClickLeft(buttonCancelGame)) return MAINMENU;
+        curr = SDL_GetTicks();
 
-	if(buttonBattleGame.isEnable())
-	if(HotKeyPressEvent(EVENT_BUTTON_BATTLEONLY) || le.MouseClickLeft(buttonBattleGame)) return NEWBATTLEONLY;
+        elapsed = curr - start;
+
+        start = SDL_GetTicks();
+
+        acc += elapsed;
+
+        while( acc > logicLatency )
+        {
+        le.MousePressLeft(buttonStandartGame) ? buttonStandartGame.PressDraw() : buttonStandartGame.ReleaseDraw();
+        le.MousePressLeft(buttonCampainGame) ? buttonCampainGame.PressDraw() : buttonCampainGame.ReleaseDraw();
+        le.MousePressLeft(buttonMultiGame) ? buttonMultiGame.PressDraw() : buttonMultiGame.ReleaseDraw();
+        le.MousePressLeft(buttonCancelGame) ? buttonCancelGame.PressDraw() : buttonCancelGame.ReleaseDraw();
+        le.MousePressLeft(buttonSettings) ? buttonSettings.PressDraw() : buttonSettings.ReleaseDraw();
+        buttonBattleGame.isEnable() && le.MousePressLeft(buttonBattleGame) ? buttonBattleGame.PressDraw() : buttonBattleGame.ReleaseDraw();
+
+        if(HotKeyPressEvent(EVENT_BUTTON_STANDARD) || le.MouseClickLeft(buttonStandartGame)) return NEWSTANDARD;
+        if(HotKeyPressEvent(EVENT_BUTTON_CAMPAIN) || le.MouseClickLeft(buttonCampainGame)) return NEWCAMPAIN;
+        if(HotKeyPressEvent(EVENT_BUTTON_MULTI) || le.MouseClickLeft(buttonMultiGame)) return NEWMULTI;
+        if(HotKeyPressEvent(EVENT_BUTTON_SETTINGS) || le.MouseClickLeft(buttonSettings)){ Dialog::ExtSettings(false); cursor.Show(); display.Flip(); }
+        if(HotKeyPressEvent(EVENT_DEFAULT_EXIT) || le.MouseClickLeft(buttonCancelGame)) return MAINMENU;
+
+        if(buttonBattleGame.isEnable())
+            if(HotKeyPressEvent(EVENT_BUTTON_BATTLEONLY) || le.MouseClickLeft(buttonBattleGame)) return NEWBATTLEONLY;
 
         // right info
-	if(le.MousePressRight(buttonStandartGame)) Dialog::Message(_("Standard Game"), _("A single player game playing out a single map."), Font::BIG);
-	if(le.MousePressRight(buttonCampainGame)) Dialog::Message(_("Campaign Game"), _("A single player game playing through a series of maps."), Font::BIG);
-	if(le.MousePressRight(buttonMultiGame)) Dialog::Message(_("Multi-Player Game"), _("A multi-player game, with several human players completing against each other on a single map."), Font::BIG);
-	if(le.MousePressRight(buttonSettings)) Dialog::Message(_("Settings"), _("FHeroes2 game settings."), Font::BIG);
-	if(le.MousePressRight(buttonCancelGame)) Dialog::Message(_("Cancel"), _("Cancel back to the main menu."), Font::BIG);
+        if(le.MousePressRight(buttonStandartGame)) Dialog::Message(_("Standard Game"), _("A single player game playing out a single map."), Font::BIG);
+        if(le.MousePressRight(buttonCampainGame)) Dialog::Message(_("Campaign Game"), _("A single player game playing through a series of maps."), Font::BIG);
+        if(le.MousePressRight(buttonMultiGame)) Dialog::Message(_("Multi-Player Game"), _("A multi-player game, with several human players completing against each other on a single map."), Font::BIG);
+        if(le.MousePressRight(buttonSettings)) Dialog::Message(_("Settings"), _("FHeroes2 game settings."), Font::BIG);
+        if(le.MousePressRight(buttonCancelGame)) Dialog::Message(_("Cancel"), _("Cancel back to the main menu."), Font::BIG);
+
+        loop = le.HandleEvents(false);
+
+        acc -= logicLatency;
+        }
+
+        elapsed = SDL_GetTicks() - start;
+        total_elapsed += elapsed;
+
+        const auto fWaitTime = logicLatency - elapsed;
+
+        // wait time remaining in current loop
+        if( fWaitTime > 0.0f )
+        {
+            const auto waitTime = static_cast<Uint32>(fWaitTime);
+            SDL_Delay( waitTime );
+            total_elapsed += static_cast<float>(waitTime);
+        }
+
+
     }
 
     return QUITGAME;

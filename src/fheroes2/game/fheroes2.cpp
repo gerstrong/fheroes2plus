@@ -65,6 +65,50 @@ std::string GetCaption(void)
     return std::string("Free Heroes II, version: " + Settings::GetVersion());
 }
 
+
+/**
+ * @brief gameloop  Game loop which runs until game must be finished.
+ * @param rs    Return value which also can be aforehand defined
+ * @param test     Some test parameter
+ * @return returns rs
+ */
+int gameloop(int rs, int test)
+{
+    while(rs != Game::QUITGAME)
+    {
+        switch(rs)
+        {
+        case Game::MAINMENU:       rs = Game::MainMenu();		break;
+        case Game::NEWGAME:        rs = Game::NewGame();		break;
+        case Game::LOADGAME:       rs = Game::LoadGame();		break;
+        case Game::HIGHSCORES:     rs = Game::HighScores(true);		break;
+        case Game::HIGHSCORESCAMPAIN:    rs = Game::HighScoresCampain(true);		break;
+        case Game::CREDITS:        rs = Game::Credits();		break;
+        case Game::NEWSTANDARD:    rs = Game::NewStandard();		break;
+        case Game::NEWCAMPAIN:     rs = Game::NewCampain();		break;
+        case Game::NEXTCAMPAIN:    rs = Game::NextCampain();	break;
+        case Game::NEWMULTI:       rs = Game::NewMulti();		break;
+        case Game::NEWHOTSEAT:     rs = Game::NewHotSeat();		break;
+#ifdef NETWORK_ENABLE
+        case Game::NEWNETWORK:     rs = Game::NewNetwork();		break;
+#endif
+        case Game::NEWBATTLEONLY:  rs = Game::NewBattleOnly();		break;
+        case Game::LOADSTANDARD:   rs = Game::LoadStandard();		break;
+        case Game::LOADCAMPAIN:    rs = Game::LoadCampain();		break;
+        case Game::LOADMULTI:      rs = Game::LoadMulti();		break;
+        case Game::SCENARIOINFO:   rs = Game::ScenarioInfo();		break;
+        case Game::SELECTSCENARIO: rs = Game::SelectScenario();		break;
+        case Game::STARTGAME:      rs = Game::StartGame();      	break;
+        case Game::TESTING:        rs = Game::Testing(test);		break;
+
+        default: break;
+        }
+    }
+
+    return rs;
+}
+
+
 int main(int argc, char **argv)
 {
     Settings & conf = Settings::Get();
@@ -180,36 +224,9 @@ int main(int argc, char **argv)
         // goto main menu
         int rs = (test ? Game::TESTING : Game::MAINMENU);
 
-        while(rs != Game::QUITGAME)
-        {
-            switch(rs)
-            {
-            case Game::MAINMENU:       rs = Game::MainMenu();		break;
-            case Game::NEWGAME:        rs = Game::NewGame();		break;
-            case Game::LOADGAME:       rs = Game::LoadGame();		break;
-            case Game::HIGHSCORES:     rs = Game::HighScores(true);		break;
-            case Game::HIGHSCORESCAMPAIN:    rs = Game::HighScoresCampain(true);		break;
-            case Game::CREDITS:        rs = Game::Credits();		break;
-            case Game::NEWSTANDARD:    rs = Game::NewStandard();		break;
-            case Game::NEWCAMPAIN:     rs = Game::NewCampain();		break;
-            case Game::NEXTCAMPAIN:    rs = Game::NextCampain();	break;
-            case Game::NEWMULTI:       rs = Game::NewMulti();		break;
-            case Game::NEWHOTSEAT:     rs = Game::NewHotSeat();		break;
-#ifdef NETWORK_ENABLE
-            case Game::NEWNETWORK:     rs = Game::NewNetwork();		break;
-#endif
-            case Game::NEWBATTLEONLY:  rs = Game::NewBattleOnly();		break;
-            case Game::LOADSTANDARD:   rs = Game::LoadStandard();		break;
-            case Game::LOADCAMPAIN:    rs = Game::LoadCampain();		break;
-            case Game::LOADMULTI:      rs = Game::LoadMulti();		break;
-            case Game::SCENARIOINFO:   rs = Game::ScenarioInfo();		break;
-            case Game::SELECTSCENARIO: rs = Game::SelectScenario();		break;
-            case Game::STARTGAME:      rs = Game::StartGame();      	break;
-            case Game::TESTING:        rs = Game::Testing(test);		break;
+        // Let the gmae loop run
+        rs = gameloop(rs, test);
 
-            default: break;
-            }
-        }
     }
 #ifndef ANDROID
     catch(Error::Exception&)

@@ -315,12 +315,12 @@ private:
 
     Point mouse_cu;	// point cursor
 
-    void (*redraw_cursor_func)(s32, s32);
-    void (*keyboard_filter_func)(int, int);
+    void (*redraw_cursor_func)(s32, s32) = nullptr;
+    void (*keyboard_filter_func)(int, int) = nullptr;
 
     SDL::Time clock;
     u32  clock_delay;
-    int  loop_delay;
+    int  loop_delay = 1;
 
 #ifdef WITHOUT_MOUSE
     bool   emulate_mouse;

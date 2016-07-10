@@ -99,12 +99,12 @@ int Game::MainMenu(void)
         bool isOver;
         bool wasOver;
     } buttons[] = {
-        { NEWGAME_DEFAULT, buttonNewGame, false, false },
-        { LOADGAME_DEFAULT, buttonLoadGame, false, false },
-        { HIGHSCORES_DEFAULT, buttonHighScores, false, false },
-        { CREDITS_DEFAULT, buttonCredits, false, false },
-        { QUIT_DEFAULT, buttonQuit, false, false }
-    };
+    { NEWGAME_DEFAULT, buttonNewGame, false, false },
+    { LOADGAME_DEFAULT, buttonLoadGame, false, false },
+    { HIGHSCORES_DEFAULT, buttonHighScores, false, false },
+    { CREDITS_DEFAULT, buttonCredits, false, false },
+    { QUIT_DEFAULT, buttonQuit, false, false }
+};
 
     for(u32 i = 0; le.MouseMotion() && i < ARRAY_COUNT(buttons); i++)
     {
@@ -115,63 +115,102 @@ int Game::MainMenu(void)
     }
 
     // mainmenu loop
-    while(le.HandleEvents())
+    float acc = 0.0f;
+    float start = 0.0f;
+    float elapsed = 0.0f;
+    float total_elapsed = 0.0f;
+    float curr = 0.0f;
+
+    bool loop = true;
+
+    while(loop)
     {
-        for(u32 i = 0; i < ARRAY_COUNT(buttons); i++)
+        const float logicLatency = 1000.0f/60.0f;
+
+        curr = SDL_GetTicks();
+
+        elapsed = curr - start;
+
+        start = SDL_GetTicks();
+
+        acc += elapsed;
+
+        while( acc > logicLatency )
         {
-            buttons[i].wasOver = buttons[i].isOver;
-
-            if(le.MousePressLeft(buttons[i].button))
-                buttons[i].button.PressDraw();
-            else buttons[i].button.ReleaseDraw();
-
-            buttons[i].isOver = le.MouseCursor(buttons[i].button);
-
-            if((!buttons[i].isOver && buttons[i].wasOver) ||
-               (buttons[i].isOver && !buttons[i].wasOver))
+            for(u32 i = 0; i < ARRAY_COUNT(buttons); i++)
             {
-                u32 frame = buttons[i].frame;
+                buttons[i].wasOver = buttons[i].isOver;
 
-                if(buttons[i].isOver && !buttons[i].wasOver)
-                    frame++;
+                if(le.MousePressLeft(buttons[i].button))
+                    buttons[i].button.PressDraw();
+                else buttons[i].button.ReleaseDraw();
 
-                cursor.Hide();
-                const Sprite & sprite = AGG::GetICN(ICN::BTNSHNGL, frame);
-                sprite.Blit(top.x + sprite.x(), top.y + sprite.y());
-                cursor.Show();
+                buttons[i].isOver = le.MouseCursor(buttons[i].button);
+
+                if((!buttons[i].isOver && buttons[i].wasOver) ||
+                        (buttons[i].isOver && !buttons[i].wasOver))
+                {
+                    u32 frame = buttons[i].frame;
+
+                    if(buttons[i].isOver && !buttons[i].wasOver)
+                        frame++;
+
+                    cursor.Hide();
+                    const Sprite & sprite = AGG::GetICN(ICN::BTNSHNGL, frame);
+                    sprite.Blit(top.x + sprite.x(), top.y + sprite.y());
+                    cursor.Show();
+                }
             }
+
+            if(HotKeyPressEvent(EVENT_BUTTON_NEWGAME) || le.MouseClickLeft(buttonNewGame)) return NEWGAME;
+            else
+                if(HotKeyPressEvent(EVENT_BUTTON_LOADGAME) || le.MouseClickLeft(buttonLoadGame)) return LOADGAME;
+                else
+                    if(HotKeyPressEvent(EVENT_BUTTON_HIGHSCORES) || le.MouseClickLeft(buttonHighScores)) return HIGHSCORES;
+                    else
+                        if(HotKeyPressEvent(EVENT_BUTTON_CREDITS) || le.MouseClickLeft(buttonCredits)) return CREDITS;
+                        else
+                            if(HotKeyPressEvent(EVENT_DEFAULT_EXIT) || le.MouseClickLeft(buttonQuit))
+                            { if(conf.ExtGameUseFade()) display.Fade(); return QUITGAME; }
+
+            // right info
+            if(le.MousePressRight(buttonQuit)) Dialog::Message(_("Quit"), _("Quit Heroes of Might and Magic and return to the operating system."), Font::BIG);
+            else
+                if(le.MousePressRight(buttonLoadGame)) Dialog::Message(_("Load Game"), _("Load a previously saved game."), Font::BIG);
+                else
+                    if(le.MousePressRight(buttonCredits)) Dialog::Message(_("Credits"), _("View the credits screen."), Font::BIG);
+                    else
+                        if(le.MousePressRight(buttonHighScores)) Dialog::Message(_("High Scores"), _("View the high score screen."), Font::BIG);
+                        else
+                            if(le.MousePressRight(buttonNewGame)) Dialog::Message(_("New Game"), _("Start a single or multi-player game."), Font::BIG);
+
+            if(AnimateInfrequentDelay(MAIN_MENU_DELAY))
+            {
+                cursor.Hide();
+                const Sprite & lantern12 = AGG::GetICN(ICN::SHNGANIM, ICN::AnimationFrame(ICN::SHNGANIM, 0, lantern_frame++));
+                lantern12.Blit(top.x + lantern12.x(), top.y + lantern12.y());
+                cursor.Show();
+                display.Flip();
+            }
+
+            loop = le.HandleEvents(false);
+
+            acc -= logicLatency;
         }
 
-	if(HotKeyPressEvent(EVENT_BUTTON_NEWGAME) || le.MouseClickLeft(buttonNewGame)) return NEWGAME;
-	else
-	if(HotKeyPressEvent(EVENT_BUTTON_LOADGAME) || le.MouseClickLeft(buttonLoadGame)) return LOADGAME;
-	else
-	if(HotKeyPressEvent(EVENT_BUTTON_HIGHSCORES) || le.MouseClickLeft(buttonHighScores)) return HIGHSCORES;
-	else
-	if(HotKeyPressEvent(EVENT_BUTTON_CREDITS) || le.MouseClickLeft(buttonCredits)) return CREDITS;
-	else
-	if(HotKeyPressEvent(EVENT_DEFAULT_EXIT) || le.MouseClickLeft(buttonQuit))
-	{ if(conf.ExtGameUseFade()) display.Fade(); return QUITGAME; }
 
-	// right info
-	if(le.MousePressRight(buttonQuit)) Dialog::Message(_("Quit"), _("Quit Heroes of Might and Magic and return to the operating system."), Font::BIG);
-	else
-	if(le.MousePressRight(buttonLoadGame)) Dialog::Message(_("Load Game"), _("Load a previously saved game."), Font::BIG);
-	else
-	if(le.MousePressRight(buttonCredits)) Dialog::Message(_("Credits"), _("View the credits screen."), Font::BIG);
-	else
-	if(le.MousePressRight(buttonHighScores)) Dialog::Message(_("High Scores"), _("View the high score screen."), Font::BIG);
-	else
-	if(le.MousePressRight(buttonNewGame)) Dialog::Message(_("New Game"), _("Start a single or multi-player game."), Font::BIG);
+        elapsed = SDL_GetTicks() - start;
+        total_elapsed += elapsed;
 
-	if(AnimateInfrequentDelay(MAIN_MENU_DELAY))
-	{
-	    cursor.Hide();
-	    const Sprite & lantern12 = AGG::GetICN(ICN::SHNGANIM, ICN::AnimationFrame(ICN::SHNGANIM, 0, lantern_frame++));
-	    lantern12.Blit(top.x + lantern12.x(), top.y + lantern12.y());
-	    cursor.Show();
-	    display.Flip();
-	}
+        const auto fWaitTime = logicLatency - elapsed;
+
+        // wait time remaining in current loop
+        if( fWaitTime > 0.0f )
+        {
+            const auto waitTime = static_cast<Uint32>(fWaitTime);
+            SDL_Delay( waitTime );
+            total_elapsed += static_cast<float>(waitTime);
+        }
     }
 
     return QUITGAME;
