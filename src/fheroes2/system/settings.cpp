@@ -251,7 +251,7 @@ bool Settings::Read(const std::string & filename)
     std::string sval; int ival;
     LocalEvent & le = LocalEvent::Get();
 
-    if(! config.Load(filename)) return false;
+    if(!config.Load(filename)) return false;
 
     // debug
     ival = config.IntParams("debug");
@@ -426,7 +426,7 @@ bool Settings::Read(const std::string & filename)
     if(! sval.empty())
     {
         // default
-	video_mode.w = 640;
+        video_mode.w = 640;
         video_mode.h = 480;
 
         std::string value = StringLower(sval);
