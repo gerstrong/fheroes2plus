@@ -249,7 +249,12 @@ void Cursor::SetOffset(int name)
 
 void Cursor::Show(void)
 {
-    if(! Settings::Get().ExtPocketHideCursor()) SpriteMove::Show();
+#ifndef ANDROID
+    if(! Settings::Get().ExtPocketHideCursor())
+#endif
+    {
+        SpriteMove::Show();
+    }
 }
 
 int Cursor::DistanceThemes(int theme, u32 dist)

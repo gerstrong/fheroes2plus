@@ -344,18 +344,18 @@ void Surface::Set(const Surface & bs, bool refcopy)
 
     if(bs.isValid())
     {
-	if(refcopy)
-	{
-	    surface = bs.surface;
-	    if(surface) surface->refcount += 1;
-	}
-	else
-	{
-	    surface = SDL_ConvertSurface(bs.surface, bs.surface->format, bs.surface->flags);
+        if(refcopy)
+        {
+            surface = bs.surface;
+            if(surface) surface->refcount += 1;
+        }
+        else
+        {
+            surface = SDL_ConvertSurface(bs.surface, bs.surface->format, bs.surface->flags);
 
-	    if(!surface)
-		Error::Except(__FUNCTION__, SDL_GetError());
-	}
+            if(!surface)
+                Error::Except(__FUNCTION__, SDL_GetError());
+        }
     }
 }
 
@@ -740,8 +740,8 @@ void Surface::Blit(const Rect & srt, const Point & dpt, Surface & dst) const
 	amask() && dst.amask())
     {
     	SDL_SetAlpha(surface, 0, 0);
-	SDL_BlitSurface(surface, & srcrect, dst.surface, & dstrect);
-	SDL_SetAlpha(surface, SDL_SRCALPHA, 255);
+        SDL_BlitSurface(surface, & srcrect, dst.surface, & dstrect);
+        SDL_SetAlpha(surface, SDL_SRCALPHA, 255);
     }
     else
 	SDL_BlitSurface(surface, & srcrect, dst.surface, & dstrect);

@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         display.HideCursor();
         display.SetCaption(GetCaption().c_str());
 
-        //Ensure the mouse position is updated to prevent bad initial values.
+        // Ensure the mouse position is updated to prevent bad initial values.
         LocalEvent::Get().GetMouseCursor();
 
 #ifdef WITH_ZLIB

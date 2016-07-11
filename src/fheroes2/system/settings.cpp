@@ -226,10 +226,10 @@ Settings::Settings() : debug(DEFAULT_DEBUG), video_mode(0, 0), game_difficulty(D
     opt_global.SetModes(GLOBAL_SHOWSTATUS);
     if(System::isEmbededDevice())
     {
-	opt_global.SetModes(GLOBAL_POCKETPC);
-	ExtSetModes(POCKETPC_HIDE_CURSOR);
-	ExtSetModes(POCKETPC_TAP_MODE);
-	ExtSetModes(POCKETPC_DRAG_DROP_SCROLL);
+        opt_global.SetModes(GLOBAL_POCKETPC);
+        ExtSetModes(POCKETPC_HIDE_CURSOR);
+        ExtSetModes(POCKETPC_TAP_MODE);
+        ExtSetModes(POCKETPC_DRAG_DROP_SCROLL);
     }
 }
 
@@ -493,9 +493,9 @@ void Settings::PostLoad(void)
         opt_global.SetModes(GLOBAL_FULLSCREEN);
     else
     {
-	ExtResetModes(POCKETPC_HIDE_CURSOR);
-	ExtResetModes(POCKETPC_TAP_MODE);
-	ExtResetModes(POCKETPC_LOW_MEMORY);
+        ExtResetModes(POCKETPC_HIDE_CURSOR);
+        ExtResetModes(POCKETPC_TAP_MODE);
+        ExtResetModes(POCKETPC_LOW_MEMORY);
     }
 
     if(ExtModes(GAME_HIDE_INTERFACE))
