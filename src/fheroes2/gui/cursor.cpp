@@ -25,6 +25,8 @@
 #include "cursor.h"
 #include "sprite.h"
 
+bool gCursorDirty = false;
+
 /* constructor */
 Cursor::Cursor() : theme(NONE), offset_x(0), offset_y(0)
 {
@@ -87,9 +89,11 @@ void Cursor::Redraw(s32 x, s32 y)
     
     if(cur.isVisible())
     {
-	cur.Move(x, y);
+        cur.Move(x, y);
 
-	Display::Get().Flip();
+        // Setting screen dirty but flipping later, so if this is handle by another thread it will work
+        // For example android devices have these issues
+        gCursorDirty = true;
     }
 }
 

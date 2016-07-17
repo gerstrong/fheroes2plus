@@ -138,7 +138,7 @@ public:
 	static int	DistanceThemes(int, u32);
 	static int	WithoutDistanceThemes(int);
 
-	int		Themes(void);
+    int		    Themes(void);
 	bool		SetThemes(int, bool force = false);
 	void		Show(void);
 

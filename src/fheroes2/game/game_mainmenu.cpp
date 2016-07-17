@@ -125,7 +125,7 @@ int Game::MainMenu(void)
 
     while(loop)
     {
-        const float logicLatency = 1000.0f/10.0f;
+        const float logicLatency = 1000.0f/60.0f;
 
         curr = SDL_GetTicks();
 

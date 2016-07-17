@@ -28,6 +28,8 @@
 
 #define TAP_DELAY_EMULATE 1050
 
+extern bool gCursorDirty;
+
 LocalEvent::LocalEvent() : modes(0), key_value(KEY_NONE), mouse_state(0),
     mouse_button(0), mouse_st(0, 0), clock_delay(TAP_DELAY_EMULATE)
 {
@@ -388,6 +390,13 @@ bool LocalEvent::HandleEvents(bool delay)
             SetModes(MOUSE_PRESSED);
             mouse_button = SDL_BUTTON_RIGHT;
         }
+    }
+
+
+    if(gCursorDirty)
+    {
+        gCursorDirty = false;
+        Display::Get().Flip();
     }
 
     if(delay) SDL_Delay(loop_delay);
