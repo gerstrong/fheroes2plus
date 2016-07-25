@@ -26,6 +26,9 @@
 #include "sprite.h"
 
 bool gCursorDirty = false;
+s32 curMoveDirty_x = 0;
+s32 curMoveDirty_y = 0;
+
 SDL_sem* gpRenderLock = nullptr;
 
 /* constructor */
@@ -83,6 +86,14 @@ bool Cursor::SetThemes(int name, bool force)
     return false;
 }
 
+
+void curMoveDirty(s32 x, s32 y)
+{
+    Cursor & cur = Cursor::Get();
+    cur.Move(x,y);
+}
+
+
 /* redraw cursor wrapper for local event */
 void Cursor::Redraw(s32 x, s32 y)
 {
@@ -92,8 +103,8 @@ void Cursor::Redraw(s32 x, s32 y)
     
     if(cur.isVisible())
     {
-        cur.Move(x, y);
-
+        curMoveDirty_x = x;
+        curMoveDirty_y = y;
         // Setting screen dirty but flipping later, so if this is handle by another thread it will work
         // For example android devices have these issues
         gCursorDirty = true;

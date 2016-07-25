@@ -142,10 +142,12 @@ public:
 	bool		SetThemes(int, bool force = false);
 	void		Show(void);
 
+    void		Move(s32, s32);
+
 private:
 	Cursor();
 	void		SetOffset(int);
-	void		Move(s32, s32);
+
 
 	int		theme;
         s32		offset_x;

@@ -26,9 +26,16 @@
 #include "audio_mixer.h"
 #include "localevent.h"
 
-#define TAP_DELAY_EMULATE 1050
 
 extern bool gCursorDirty;
+extern s32 curMoveDirty_x;
+extern s32 curMoveDirty_y;
+
+extern SDL_sem* gpRenderLock;
+
+
+
+#define TAP_DELAY_EMULATE 1050
 
 LocalEvent::LocalEvent() : modes(0), key_value(KEY_NONE), mouse_state(0),
     mouse_button(0), mouse_st(0, 0), clock_delay(TAP_DELAY_EMULATE)
@@ -291,7 +298,7 @@ LocalEvent & LocalEvent::Get(void)
     return le;
 }
 
-extern SDL_sem* gpRenderLock;
+void curMoveDirty(s32 x, s32 y);
 
 bool LocalEvent::HandleEvents(bool delay)
 {
@@ -394,15 +401,21 @@ bool LocalEvent::HandleEvents(bool delay)
         }
     }
 
+
     SDL_SemWait( gpRenderLock );
 
     if(gCursorDirty)
     {
         gCursorDirty = false;
+
+        curMoveDirty(curMoveDirty_x, curMoveDirty_y);
+
         Display::Get().Flip();
     }
 
     SDL_SemPost( gpRenderLock );
+
+
 
     if(delay) SDL_Delay(loop_delay);
 

@@ -167,7 +167,7 @@ void SpriteMove::Hide(void)
     if(isVisible())
     {
         background.Restore();
-	mode &= ~(_VISIBLE);
+        mode &= ~(_VISIBLE);
     }
 }
 
