@@ -26,6 +26,7 @@
 #include "sprite.h"
 
 bool gCursorDirty = false;
+SDL_sem* gpRenderLock = nullptr;
 
 /* constructor */
 Cursor::Cursor() : theme(NONE), offset_x(0), offset_y(0)
@@ -85,6 +86,8 @@ bool Cursor::SetThemes(int name, bool force)
 /* redraw cursor wrapper for local event */
 void Cursor::Redraw(s32 x, s32 y)
 {
+    SDL_SemWait( gpRenderLock );
+
     Cursor & cur = Cursor::Get();
     
     if(cur.isVisible())
@@ -95,6 +98,9 @@ void Cursor::Redraw(s32 x, s32 y)
         // For example android devices have these issues
         gCursorDirty = true;
     }
+
+    SDL_SemPost( gpRenderLock );
+
 }
 
 /* move cursor */

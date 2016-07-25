@@ -291,6 +291,8 @@ LocalEvent & LocalEvent::Get(void)
     return le;
 }
 
+extern SDL_sem* gpRenderLock;
+
 bool LocalEvent::HandleEvents(bool delay)
 {
     SDL_Event event;
@@ -392,12 +394,15 @@ bool LocalEvent::HandleEvents(bool delay)
         }
     }
 
+    SDL_SemWait( gpRenderLock );
 
     if(gCursorDirty)
     {
         gCursorDirty = false;
         Display::Get().Flip();
     }
+
+    SDL_SemPost( gpRenderLock );
 
     if(delay) SDL_Delay(loop_delay);
 
