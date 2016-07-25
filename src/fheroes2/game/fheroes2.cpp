@@ -109,6 +109,8 @@ int gameloop(int rs, int test)
 }
 
 
+extern SDL_sem* gpRenderLock;
+
 int main(int argc, char **argv)
 {
     Settings & conf = Settings::Get();
@@ -215,6 +217,9 @@ int main(int argc, char **argv)
         LoadZLogo();
 #endif
 
+        // setup semaphore
+        gpRenderLock = SDL_CreateSemaphore( 1 );
+
         // init cursor
         Cursor::Get().SetThemes(Cursor::POINTER);
 
@@ -227,6 +232,7 @@ int main(int argc, char **argv)
         // Let the gmae loop run
         rs = gameloop(rs, test);
 
+        SDL_DestroySemaphore(gpRenderLock);
     }
 #ifndef ANDROID
     catch(Error::Exception&)
